@@ -2,8 +2,8 @@
  * @param {Element} el
  * @returns {boolean} is Web Component ?
  */
-export const isWebComponent = (el) =>
-	el && el.shadowRoot && el.tagName.includes('-');
+export const isWebComponent = (element) =>
+	element && element.shadowRoot && element.tagName.includes('-');
 
 /**
  * What is user's navigator language ?
@@ -16,8 +16,8 @@ export const getUserLanguage = () =>
  * @param {Element} target
  * @returns {Void} insertBefore
  */
-export function insertBefore(el, target) {
-	target.parentElement.insertBefore(el, target);
+export function insertBefore(element, target) {
+	target.parentElement.insertBefore(element, target);
 }
 
 /**
@@ -25,8 +25,8 @@ export function insertBefore(el, target) {
  * @param {Element} target
  * @returns {Void} insertAfter
  */
-export function insertAfter(el, target) {
-	target.parentElement.insertBefore(el, target.nextSibling);
+export function insertAfter(element, target) {
+	target.parentElement.insertBefore(element, target.nextSibling);
 }
 
 /**
@@ -34,8 +34,8 @@ export function insertAfter(el, target) {
  * @param {Element} target
  * @returns {Void} prependTo
  */
-export function prependTo(el, target) {
-	target.insertBefore(el, target.firstChild);
+export function prependTo(element, target) {
+	target.insertBefore(element, target.firstChild);
 }
 
 /**
@@ -43,8 +43,8 @@ export function prependTo(el, target) {
  * @param {Element} target
  * @returns {Void} appendTo
  */
-export function appendTo(el, target) {
-	target.appendChild(el);
+export function appendTo(element, target) {
+	target.append(element);
 }
 
 /** Select next child */
@@ -74,7 +74,8 @@ export const allElements = (selector, root = document) => {
 	if (isWebComponent(root)) {
 		root = root.shadowRoot;
 	}
-	return Array.from(root.querySelectorAll(selector));
+
+	return [...root.querySelectorAll(selector)];
 };
 
 /** Select element with a given id */
@@ -82,6 +83,7 @@ export const id = (elementId, root = document) => {
 	if (isWebComponent(root)) {
 		root = root.shadowRoot;
 	}
+
 	return root.getElementById(elementId);
 };
 
@@ -93,17 +95,19 @@ export const id = (elementId, root = document) => {
  */
 export const getIndex = (node, nodeList) => {
 	const nodesLength = nodes.length;
-	let nodes = nodeList || node.parentNode.childNodes;
+	const nodes = nodeList || node.parentNode.childNodes;
 	let n = 0;
 
 	for (let i = 0; i < nodesLength; i++) {
 		if (nodes[i] === node) {
 			return n;
 		}
+
 		if (nodes[i].nodeType === 1) {
 			n++;
 		}
 	}
+
 	return -1;
 };
 
@@ -114,11 +118,11 @@ export const getIndex = (node, nodeList) => {
  * @param {...*} args
  * @returns {Void}
  */
-export function onDOM(el, name, handler, ...args) {
-	if (el.addEventListener) {
-		el.addEventListener(name, handler, ...args);
-	} else if (el.attachEvent) {
-		el.attachEvent(`on${name}`, handler, ...args);
+export function onDOM(element, name, handler, ...args) {
+	if (element.addEventListener) {
+		element.addEventListener(name, handler, ...args);
+	} else if (element.attachEvent) {
+		element.attachEvent(`on${name}`, handler, ...args);
 	}
 }
 
@@ -129,11 +133,11 @@ export function onDOM(el, name, handler, ...args) {
  * @param {...*} args
  * @returns {Void}
  */
-export function offDOM(el, name, handler, ...args) {
-	if (el.removeEventListener) {
-		el.removeEventListener(name, handler, ...args);
-	} else if (el.detachEvent) {
-		el.detachEvent(`on${name}`, handler, ...args);
+export function offDOM(element, name, handler, ...args) {
+	if (element.removeEventListener) {
+		element.removeEventListener(name, handler, ...args);
+	} else if (element.detachEvent) {
+		element.detachEvent(`on${name}`, handler, ...args);
 	}
 }
 
@@ -145,18 +149,20 @@ export function offDOM(el, name, handler, ...args) {
  * @returns {Void}
  */
 export function onDOMMany(els, names, handler, ...args) {
-	for (const el of els) {
+	for (const element of els) {
 		for (const name of names) {
-			onDOM(el, name, handler, ...args);
+			onDOM(element, name, handler, ...args);
 		}
 	}
+
 	const destroy = () => {
-		for (const el of els) {
+		for (const element of els) {
 			for (const name of names) {
-				offDOM(el, name, handler);
+				offDOM(element, name, handler);
 			}
 		}
 	};
+
 	return destroy;
 }
 
@@ -180,15 +186,15 @@ export function getImageSizeByUrl(url) {
  * Get attributes of an element as an object with key/value
  * @param {Node} el
  */
-export const getAttributes = (el) => {
+export const getAttributes = (element) => {
 	const result = {};
-	const atts = el.attributes;
+	const atts = element.attributes;
 	if (!atts || atts.length === 0) return result;
 
-	for (let i = 0; i < atts.length; i++) {
-		const a = atts[i];
+	for (const a of atts) {
 		result[a.name] = a.value;
 	}
+
 	return result;
 };
 
@@ -197,9 +203,9 @@ export const createElementsArray = (html = '') => {
 	html = html.trim();
 	if (!html) return [];
 
-	const temp = document.createElement('template');
-	temp.innerHTML = html;
-	return Array.from(temp.content.childNodes);
+	const temporary = document.createElement('template');
+	temporary.innerHTML = html;
+	return [...temporary.content.childNodes];
 };
 
 /** Create a single DOM element */
@@ -240,16 +246,16 @@ export const setContent = (element, ...content) => {
 /** Remove elements matching given selector */
 export const removeElements = (selector, root = document) => {
 	const elements = all(selector, root);
-	elements.forEach((el) => {
-		el.parentNode.removeChild(el);
-	});
+	for (const element of elements) {
+		element.remove();
+	}
 };
 
 /** Add/remove a given class if condition is true/false */
-export const classPresentIf = (el, cssClass, condition) => {
-	if (!el) return;
+export const classPresentIf = (element, cssClass, condition) => {
+	if (!element) return;
 	const func = condition ? 'add' : 'remove';
-	el.classList[func](cssClass);
+	element.classList[func](cssClass);
 };
 
 /**
@@ -271,18 +277,20 @@ export const getCookie = (name) => {
  * @return {String}        The serialized form data
  */
 export const serialize = (data) => {
-	const obj = {};
+	const object = {};
 	for (const [key, value] of data) {
-		if (obj[key] !== undefined) {
-			if (!Array.isArray(obj[key])) {
-				obj[key] = [obj[key]];
+		if (object[key] !== undefined) {
+			if (!Array.isArray(object[key])) {
+				object[key] = [object[key]];
 			}
-			obj[key].push(value);
+
+			object[key].push(value);
 		} else {
-			obj[key] = value;
+			object[key] = value;
 		}
 	}
-	return obj;
+
+	return object;
 };
 
 /**
@@ -299,11 +307,11 @@ export const serialize = (data) => {
  */
 export const objectifyForm = (form) => {
 	let field;
-	const obj = {};
+	const object = {};
 
 	if (typeof form === 'object' && form.nodeName === 'FORM') {
-		const len = form.elements.length;
-		for (let i = 0; i < len; i++) {
+		const {length} = form.elements;
+		for (let i = 0; i < length; i++) {
 			field = form.elements[i];
 			if (
 				field.name &&
@@ -316,19 +324,20 @@ export const objectifyForm = (form) => {
 				if (field.type === 'select-multiple') {
 					for (let j = form.elements[i].options.length - 1; j >= 0; j--) {
 						if (field.options[j].selected) {
-							obj[field.name] = field.options[j].value;
+							object[field.name] = field.options[j].value;
 						}
 					}
 				} else if (
 					(field.type !== 'checkbox' && field.type !== 'radio') ||
 					field.checked
 				) {
-					obj[field.name] = field.value;
+					object[field.name] = field.value;
 				}
 			}
 		}
 	}
-	return obj;
+
+	return object;
 };
 
 const isType = (v, type) =>
@@ -361,6 +370,7 @@ export const add = (target, tobeAdded, location = 'beforeend') => {
 	} else {
 		addElements(target, tobeAdded, location);
 	}
+
 	return true;
 };
 
@@ -368,28 +378,29 @@ export const add = (target, tobeAdded, location = 'beforeend') => {
  * Set cursor position in html textbox
  * @link http://stackoverflow.com/questions/512528/set-cursor-position-in-html-textbox
  */
-export function setCaretPosition(el, start, end) {
-	// get "focus" and make sure we don't have everything -selected-
-	el.value = el.value;
+export function setCaretPosition(element, start, end) {
+	// Get "focus" and make sure we don't have everything -selected-
+	element.value = element.value;
 
 	// (el.selectionStart === 0 added for Firefox bug)
-	if (el.selectionStart || el.selectionStart === 0) {
-		el.focus();
+	if (element.selectionStart || element.selectionStart === 0) {
+		element.focus();
 		if (!end || end < start) {
 			end = start;
 		}
-		el.setSelectionRange(start, end);
+
+		element.setSelectionRange(start, end);
 		return true;
 	}
 
-	if (el.createTextRange) {
-		const range = el.createTextRange();
+	if (element.createTextRange) {
+		const range = element.createTextRange();
 		range.move('character', end);
 		range.select();
 		return true;
 	}
 
-	el.focus();
+	element.focus();
 	return false;
 }
 
@@ -420,8 +431,8 @@ export const toClipboardFromElement = (element) => {
 	try {
 		element.select();
 		const successful = document.execCommand('copy');
-		return !!successful;
-	} catch (err) {
+		return Boolean(successful);
+	} catch {
 		return false;
 	}
 };
@@ -445,11 +456,11 @@ export const toClipboard = (text) => {
 	textArea.style.boxShadow = 'none';
 	textArea.style.background = 'transparent';
 
-	textArea.value = text; // set Value
+	textArea.value = text; // Set Value
 
-	document.body.appendChild(textArea);
+	document.body.append(textArea);
 	const success = toClipboardFromElement(textArea);
-	document.body.removeChild(textArea);
+	textArea.remove();
 	return success;
 };
 
@@ -459,12 +470,13 @@ export const toClipboard = (text) => {
  */
 export function getScroll() {
 	if (typeof pageYOffset !== 'undefined') {
-		// most browsers except IE before #9
+		// Most browsers except IE before #9
 		return {
 			top: pageYOffset,
 			left: pageXOffset,
 		};
 	}
+
 	const B = document.body; // IE 'quirks'
 	let D = document.documentElement; // IE with doctype
 	D = D.clientHeight ? D : B;
@@ -478,8 +490,8 @@ export function getScroll() {
  * @param {HTMLElement} el
  * @link refer: https://gist.github.com/aderaaij/89547e34617b95ac29d1
  */
-export function getOffset(el) {
-	const rect = getBoundingClientRect(el);
+export function getOffset(element) {
+	const rect = getBoundingClientRect(element);
 	const scroll = getScroll();
 
 	return {
@@ -489,11 +501,11 @@ export function getOffset(el) {
 }
 
 /**
- * there is some trap in el.offsetParent, so use this func to fix
+ * There is some trap in el.offsetParent, so use this func to fix
  * @param {HTMLElement} el
  */
-export function getOffsetParent(el) {
-	let {offsetParent} = el;
+export function getOffsetParent(element) {
+	let {offsetParent} = element;
 	if (
 		!offsetParent ||
 		(offsetParent === document.body &&
@@ -501,39 +513,42 @@ export function getOffsetParent(el) {
 	) {
 		offsetParent = document.body.parentElement;
 	}
+
 	return offsetParent;
 }
 
 /**
- * get el current position.
+ * Get el current position.
  * like jQuery.position.
  * The position is relative to offsetParent viewport left top.
  * It is for set absolute position, absolute position is relative to offsetParent viewport left top.
  * @param {HTMLElement} el
  */
-export function getPosition(el) {
-	const offsetParent = getOffsetParent(el);
-	const ps = {x: el.offsetLeft, y: el.offsetTop};
-	let parent = el;
+export function getPosition(element) {
+	const offsetParent = getOffsetParent(element);
+	const ps = {x: element.offsetLeft, y: element.offsetTop};
+	let parent = element;
 	while (true) {
 		parent = parent.parentElement;
 		if (parent === offsetParent || !parent) {
 			break;
 		}
+
 		ps.x -= parent.scrollLeft;
 		ps.y -= parent.scrollTop;
 	}
+
 	return ps;
 }
 
 /**
- * like jQuery.offset(x, y), but it just return cmputed position, don't update style
+ * Like jQuery.offset(x, y), but it just return cmputed position, don't update style
  * @param {HTMLElement} el
  * @param {{x: number, y: number}} of
  * @returns {{x: number, y: number}}
  */
-export function getPositionFromOffset(el, of) {
-	const offsetParent = getOffsetParent(el);
+export function getPositionFromOffset(element, of) {
+	const offsetParent = getOffsetParent(element);
 	const parentOf = getOffset(offsetParent);
 	return {
 		x: of.x - parentOf.x,
@@ -545,8 +560,8 @@ export function getPositionFromOffset(el, of) {
  * @link http://www.51xuediannao.com/javascript/getBoundingClientRect.html
  * @param {HTMLElement} el
  */
-export function getBoundingClientRect(el) {
-	const xy = el.getBoundingClientRect();
+export function getBoundingClientRect(element) {
+	const xy = element.getBoundingClientRect();
 	const top = xy.top - document.documentElement.clientTop;
 	const {bottom} = xy;
 	const left = xy.left - document.documentElement.clientLeft;
@@ -558,7 +573,7 @@ export function getBoundingClientRect(el) {
 	return {top, right, bottom, left, width, height, x, y};
 }
 
-/** refer [getBoundingClientRect](#getBoundingClientRect) */
+/** Refer [getBoundingClientRect](#getBoundingClientRect) */
 export const getViewportPosition = getBoundingClientRect;
 
 /**
@@ -575,7 +590,7 @@ export const getViewportPosition = getBoundingClientRect;
  */
 export const store = {uniqueId: {}};
 /**
- * get global, such as window in browser.
+ * Get global, such as window in browser.
  * @param {Window} glb
  */
 export function glb() {
@@ -583,13 +598,15 @@ export function glb() {
 	if (store.glb) {
 		return store.glb;
 	}
-	// resolve global
+
+	// Resolve global
 	let t;
 	try {
 		t = global;
-	} catch (e) {
+	} catch {
 		t = window;
 	}
+
 	store.glb = t;
 	return t;
 }
@@ -616,7 +633,7 @@ export function makeStorageHelper(storage) {
 		 * @param {number} minutes
 		 */
 		set(name, value, minutes) {
-			// set null can remove a item
+			// Set null can remove a item
 			if (value == null) {
 				this.storage.removeItem(name);
 			} else {
@@ -624,9 +641,7 @@ export function makeStorageHelper(storage) {
 					name,
 					JSON.stringify({
 						value,
-						expired_at: minutes
-							? new Date().getTime() + minutes * 60 * 1000
-							: null,
+						expired_at: minutes ? Date.now() + minutes * 60 * 1000 : null,
 					}),
 				);
 			}
@@ -638,11 +653,13 @@ export function makeStorageHelper(storage) {
 			let t = this.storage.getItem(name);
 			if (t) {
 				t = JSON.parse(t);
-				if (!t.expired_at || t.expired_at > new Date().getTime()) {
+				if (!t.expired_at || t.expired_at > Date.now()) {
 					return t.value;
 				}
+
 				this.storage.removeItem(name);
 			}
+
 			return null;
 		},
 		clear() {
@@ -655,6 +672,7 @@ export function getLocalStorage2() {
 	if (!store.localStorage2) {
 		store.localStorage2 = makeStorageHelper(localStorage);
 	}
+
 	return store.localStorage2;
 }
 
@@ -662,5 +680,6 @@ export function getSessionStorage2() {
 	if (!store.sessionStorage2) {
 		store.sessionStorage2 = makeStorageHelper(glb().sessionStorage);
 	}
+
 	return store.sessionStorage2;
 }
