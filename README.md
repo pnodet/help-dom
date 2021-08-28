@@ -1,14 +1,14 @@
-# pkg-template
-> Small js package I use to help me to create npm packages
+# help-dom
+> Small js package I use to help me deal with the dom
 
 [![XO code style](https://img.shields.io/badge/code_style-XO-5ed9c7.svg)](https://github.com/xojs/xo)
-[![GitHub workflow status](https://img.shields.io/github/workflow/status/pnxdxt/package-template/CI)](https://github.com/pnxdxt/package-template)
-[![npm bundle size](https://img.shields.io/bundlephobia/min/pkg-template)](https://bundlephobia.com/package/pkg-template)
-[![npm downloads](https://img.shields.io/npm/dt/pkg-template)](https://www.npmjs.com/package/pkg-template)
+[![GitHub workflow status](https://img.shields.io/github/workflow/status/pnxdxt/help-dom/CI)](https://github.com/pnxdxt/help-dom)
+[![npm bundle size](https://img.shields.io/bundlephobia/min/help-dom)](https://bundlephobia.com/package/help-dom)
+[![npm downloads](https://img.shields.io/npm/dt/help-dom)](https://www.npmjs.com/package/help-dom)
 
 ## Install
 ```
-$ npm install pkg-template
+$ npm install help-dom
 ```
 ## Import
 
@@ -18,10 +18,10 @@ Use `import foo from 'foo'` instead of `const foo = require('foo')` to import th
 
 ```js
 // Load entire build
-import * as pkgName from 'pkg-template';
+import * as helpDom from 'help-dom';
 
 // Load by method
-import {main} from 'pkg-template';
+import {main} from 'help-dom';
 ```
 If the package is used in an async context, you could use [`await import(…)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import#dynamic_imports) from CommonJS instead of `require(…)`.
 
@@ -40,6 +40,93 @@ main([1,2,3], (element) => typeof element === 'string');
 main(['1', '2', '3'], (element) => typeof element === 'string');
 //=> true
 ```
+
+
+`allElements` :
+
+`appendTo` :
+
+`attsToString` :
+
+`classPresentIf` :
+
+`createElement` :
+
+`createElementsArray` :
+
+`getAttributes` :
+
+`getBoundingClientRect` :
+
+`getCookie` :
+
+`getImageSizeByUrl` :
+
+`getIndex` :
+
+`getLocalStorage2` :
+
+`getOffset` :
+
+`getOffsetParent` :
+
+`getParentByData` :
+
+`getParentById` :
+
+`getPosition` :
+
+`getPositionFromOffset` :
+
+`getScroll` :
+
+`getSessionStorage2` :
+
+`getUserLanguage` :
+
+`getViewportPosition` :
+
+`glb` :
+
+`id` :
+
+`insertAfter` :
+
+`insertBefore` :
+
+`isWebComponent` :
+
+`makeStorageHelper` :
+
+`nextChild` :
+
+`objectifyForm` :
+
+`offDOM` :
+
+`onDOM` :
+
+`onDOMMany` :
+
+`prependTo` :
+
+`removeElements` :
+
+`serialize` :
+
+`setCaretPosition` :
+
+`setContent` :
+
+`store` :
+
+`tag` :
+
+`toClipboard` :
+
+`toClipboardFromElement` :
+
+`windowLoaded` :
 
 ## License
 
