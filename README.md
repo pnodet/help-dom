@@ -41,28 +41,31 @@ main(['1', '2', '3'], (element) => typeof element === 'string');
 //=> true
 ```
 
+## API
 
-`allElements` :
+`allElements(selector)` : Select all elements matching given `selector`.
 
-`appendTo` :
+`appendTo(element, target)` 
 
-`attsToString` :
+`prependTo(element, target)` 
 
-`classPresentIf` :
+`attsToString`
 
-`createElement` :
+`classPresentIf` : Add/remove a given class if condition is true/false.
 
-`createElementsArray` :
+`createElement` : Create a single DOM element.
 
-`getAttributes` :
+`createElementsArray` : Create an array of DOM elements from given html.
+
+`getAttributes` : Get attributes of `element` as an object with key/value.
 
 `getBoundingClientRect` :
 
-`getCookie` :
+`getCookie` : Get the value of a cookie.
 
-`getImageSizeByUrl` :
+`getImageSizeByUrl`
 
-`getIndex` :
+`getIndex` : Returns the index of a `node` in a `nodeList`.
 
 `getLocalStorage2` :
 
@@ -107,8 +110,6 @@ main(['1', '2', '3'], (element) => typeof element === 'string');
 `onDOM` :
 
 `onDOMMany` :
-
-`prependTo` :
 
 `removeElements` :
 

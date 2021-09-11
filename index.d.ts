@@ -1,5 +1,5 @@
 /**
- * @param {Element} el
+ * @param {Element} element
  * @param {Element} target
  * @returns {Void} insertBefore
  */

@@ -1,9 +1,187 @@
-/**
- * @param {Element} el
- * @returns {boolean} is Web Component ?
- */
-export const isWebComponent = (element) =>
+/* globals document, localStorage, window, navigator, pageYOffset, pageXOffset, getComputedStyle */
+
+const isWebComponent = (element) =>
 	element && element.shadowRoot && element.tagName.includes('-');
+
+/** Select all elements matching given selector. */
+export const allElements = (selector, root = document) => {
+	if (isWebComponent(root)) {
+		root = root.shadowRoot;
+	}
+
+	return [...root.querySelectorAll(selector)];
+};
+
+/** Append `element` to `target` */
+export const appendTo = (element, target) => {
+	target.append(element);
+};
+
+/** Prepend `element` to `target` */
+export const prependTo = (element, target) => {
+	target.insertBefore(element, target.firstChild);
+};
+
+// Export const attsToString = (attributes) => {
+// 	const array = [];
+// 	attributes.forEach((k, v) => {
+// 		array.push(`${k}="${v}"`);
+// 	});
+// 	const sep = array.length > 0 ? ' ' : '';
+// 	return sep + array.join(' ');
+// };
+
+/** Add `cssClass` to `element` if condition is true, remove if false. */
+export const classPresentIf = (element, cssClass, condition) => {
+	if (!element) return;
+	const action = condition ? 'add' : 'remove';
+	element.classList[action](cssClass);
+};
+
+/** Create the html for a given tag */
+export const tag = (name, attributes = {}, content = '') => {
+	if (!name) return '';
+	const atts = attsToString(attributes);
+	return `<${name}${atts}>${content}</${name}>`;
+};
+
+/** Create a single DOM element. */
+export const createElement = (name, attributes = {}, content = '') => {
+	const html = tag(name, attributes, content);
+
+	const elements = createElementsArray(html);
+	if (elements.length === 0) return null;
+	return elements[0];
+};
+
+/** Create an array of DOM elements from given html. */
+export const createElementsArray = (html = '') => {
+	html = html.trim();
+	if (!html) return [];
+
+	const temporary = document.createElement('template');
+	temporary.innerHTML = html;
+	return [...temporary.content.childNodes];
+};
+
+/** Get attributes of an element as an object with key/value. */
+export const getAttributes = (element) => {
+	const result = {};
+	const atts = element.attributes;
+	if (!atts || atts.length === 0) return result;
+
+	for (const a of atts) {
+		result[a.name] = a.value;
+	}
+
+	return result;
+};
+
+/**
+ * @link http://www.51xuediannao.com/javascript/getBoundingClientRect.html
+ */
+export function getBoundingClientRect(element) {
+	const xy = element.getBoundingClientRect();
+	const top = xy.top - document.documentElement.clientTop;
+	const {bottom} = xy;
+	const left = xy.left - document.documentElement.clientLeft;
+	const {right} = xy;
+	const width = xy.width || right - left;
+	const height = xy.height || bottom - top;
+	const x = left;
+	const y = top;
+	return {top, right, bottom, left, width, height, x, y};
+}
+
+/** Get the value of a cookie. */
+export const getCookie = (name) => {
+	const value = `; ${document.cookie}`;
+	const parts = value.split(`; ${name}=`);
+	if (parts.length === 2) return parts.pop().split(';').shift();
+};
+
+export function getImageSizeByUrl(url) {
+	const image = document.createElement('img');
+	return new Promise((resolve, reject) => {
+		onDOM(image, 'load', () => {
+			resolve({width: image.width, height: image.height});
+		});
+		onDOM(image, 'error', (error) => {
+			reject(error);
+		});
+		image.src = url;
+	});
+}
+
+/** Returns the index of a node in a nodeList. */
+export const getIndex = (node, nodeList) => {
+	const nodesLength = nodes.length;
+	const nodes = nodeList || node.parentNode.childNodes;
+	let n = 0;
+
+	for (let i = 0; i < nodesLength; i++) {
+		if (nodes[i] === node) {
+			return n;
+		}
+
+		if (nodes[i].nodeType === 1) {
+			n++;
+		}
+	}
+
+	return -1;
+};
+
+/**
+ * @typedef {{
+ *   glb: Window;
+ *   uniqueId: { [id: string]: true };
+ *   localStorage2?: ReturnType<typeof makeStorageHelper>;
+ *   sessionStorage2?: ReturnType<typeof makeStorageHelper>;
+ * }} Store
+ */
+
+/**
+ * @param {Store} store
+ */
+export const store = {uniqueId: {}};
+/**
+ * Get global, such as window in browser.
+ * @param {Window} glb
+ */
+export function glb() {
+	// `this` !== global or window because of build tool. So you can't use `this` to get `global`
+	if (store.glb) {
+		return store.glb;
+	}
+
+	// Resolve global
+	let t;
+	try {
+		t = global;
+	} catch {
+		t = window;
+	}
+
+	store.glb = t;
+	return t;
+}
+
+export function getLocalStorage2() {
+	if (!store.localStorage2) {
+		store.localStorage2 = makeStorageHelper(localStorage);
+	}
+
+	return store.localStorage2;
+}
+
+export function getSessionStorage2() {
+	if (!store.sessionStorage2) {
+		store.sessionStorage2 = makeStorageHelper(glb().sessionStorage);
+	}
+
+	return store.sessionStorage2;
+}
 
 /**
  * What is user's navigator language ?
@@ -11,47 +189,21 @@ export const isWebComponent = (element) =>
 export const getUserLanguage = () =>
 	navigator.language || navigator.userLanguage;
 
-/**
- * @param {Element} el
- * @param {Element} target
- * @returns {Void} insertBefore
- */
-export function insertBefore(element, target) {
+/** Insert `element` before `target` */
+export const insertBefore = (element, target) => {
 	target.parentElement.insertBefore(element, target);
-}
+};
 
-/**
- * @param {Element} el
- * @param {Element} target
- * @returns {Void} insertAfter
- */
-export function insertAfter(element, target) {
+/** Insert `element` after `target` */
+export const insertAfter = (element, target) => {
 	target.parentElement.insertBefore(element, target.nextSibling);
-}
-
-/**
- * @param {Element} el
- * @param {Element} target
- * @returns {Void} prependTo
- */
-export function prependTo(element, target) {
-	target.insertBefore(element, target.firstChild);
-}
-
-/**
- * @param {Element} el
- * @param {Element} target
- * @returns {Void} appendTo
- */
-export function appendTo(element, target) {
-	target.append(element);
-}
+};
 
 /** Select next child */
-export const nextChild = (pathItem, root) => {
-	const isShadowRoot = pathItem === 'shadowRoot' || pathItem === 'shadow-root';
-	return isShadowRoot ? root.shadowRoot : root.querySelector(pathItem);
-};
+export const nextChild = (pathItem, root) =>
+	pathItem === 'shadowRoot' || pathItem === 'shadow-root'
+		? root.shadowRoot
+		: root.querySelector(pathItem);
 
 /** Get parent by Id */
 export const getParentById = (node, id) => {
@@ -69,46 +221,13 @@ export const getParentByData = (node, key, value) => {
 	}
 };
 
-/** Select all elements matching given selector */
-export const allElements = (selector, root = document) => {
-	if (isWebComponent(root)) {
-		root = root.shadowRoot;
-	}
-
-	return [...root.querySelectorAll(selector)];
-};
-
 /** Select element with a given id */
 export const id = (elementId, root = document) => {
 	if (isWebComponent(root)) {
 		root = root.shadowRoot;
 	}
 
-	return root.getElementById(elementId);
-};
-
-/**
- * Returns the index of a node in a nodeList.
- * @link https://code.area17.com/a17/a17-helpers/wikis/getIndex
- * @param {Node} node
- * @param {NodeList} nodeList
- */
-export const getIndex = (node, nodeList) => {
-	const nodesLength = nodes.length;
-	const nodes = nodeList || node.parentNode.childNodes;
-	let n = 0;
-
-	for (let i = 0; i < nodesLength; i++) {
-		if (nodes[i] === node) {
-			return n;
-		}
-
-		if (nodes[i].nodeType === 1) {
-			n++;
-		}
-	}
-
-	return -1;
+	return root.querySelector(`#${elementId}`);
 };
 
 /**
@@ -167,73 +286,6 @@ export function onDOMMany(els, names, handler, ...args) {
 }
 
 /**
- * @param {String} url
- */
-export function getImageSizeByUrl(url) {
-	const image = document.createElement('img');
-	return new Promise((resolve, reject) => {
-		onDOM(image, 'load', () => {
-			resolve({width: image.width, height: image.height});
-		});
-		onDOM(image, 'error', (e) => {
-			reject(e);
-		});
-		image.src = url;
-	});
-}
-
-/**
- * Get attributes of an element as an object with key/value
- * @param {Node} el
- */
-export const getAttributes = (element) => {
-	const result = {};
-	const atts = element.attributes;
-	if (!atts || atts.length === 0) return result;
-
-	for (const a of atts) {
-		result[a.name] = a.value;
-	}
-
-	return result;
-};
-
-/** Create an array of DOM elements from given html */
-export const createElementsArray = (html = '') => {
-	html = html.trim();
-	if (!html) return [];
-
-	const temporary = document.createElement('template');
-	temporary.innerHTML = html;
-	return [...temporary.content.childNodes];
-};
-
-/** Create a single DOM element */
-export const createElement = (name, attributes = {}, content = '') => {
-	const html = tag(name, attributes, content);
-
-	const elements = createElementsArray(html);
-	if (elements.length === 0) return null;
-	return elements[0];
-};
-
-export const attsToString = (attributes) => {
-	const array = [];
-	forEachEntry(attributes, (k, v) => {
-		array.push(`${k}="${v}"`);
-	});
-	const sep = array.length > 0 ? ' ' : '';
-	return sep + array.join(' ');
-};
-
-/** Create the html for a given tag */
-export const tag = (name, attributes = {}, content = '') => {
-	if (!name) return '';
-	const atts = attsToString(attributes);
-	return `<${name}${atts}>${content}</${name}>`;
-};
-
-/**
  * Set the content of an element
  * @param {DomElement} element The DOM element to change its content
  * @param {String or DomElement} content The new content. Can be a string or another DOM element
@@ -249,25 +301,6 @@ export const removeElements = (selector, root = document) => {
 	for (const element of elements) {
 		element.remove();
 	}
-};
-
-/** Add/remove a given class if condition is true/false */
-export const classPresentIf = (element, cssClass, condition) => {
-	if (!element) return;
-	const func = condition ? 'add' : 'remove';
-	element.classList[func](cssClass);
-};
-
-/**
- * Get the value of a cookie
- * Source: https://gist.github.com/wpsmith/6cf23551dd140fb72ae7
- * @param  {String} name  The name of the cookie
- * @return {String}       The cookie value
- */
-export const getCookie = (name) => {
-	const value = `; ${document.cookie}`;
-	const parts = value.split(`; ${name}=`);
-	if (parts.length == 2) return parts.pop().split(';').shift();
 };
 
 /**
@@ -340,11 +373,8 @@ export const objectifyForm = (form) => {
 	return object;
 };
 
-const isType = (v, type) =>
-	Object.prototype.toString.call(v) === `[object ${type}]`;
-
 /** Check if given argument is of String type */
-const isString = (s) => isType(s, 'String');
+const isString = (value) => typeof value === 'string';
 
 const LOCATIONS = new Set([
 	'beforebegin',
@@ -469,36 +499,29 @@ export const toClipboard = (text) => {
  * @link https://stackoverflow.com/questions/871399/cross-browser-method-for-detecting-the-scrolltop-of-the-browser-window
  */
 export function getScroll() {
-	if (typeof pageYOffset !== 'undefined') {
-		// Most browsers except IE before #9
-		return {
-			top: pageYOffset,
-			left: pageXOffset,
-		};
-	}
-
 	const B = document.body; // IE 'quirks'
 	let D = document.documentElement; // IE with doctype
 	D = D.clientHeight ? D : B;
-	return {
-		top: D.scrollTop,
-		left: D.scrollLeft,
-	};
+
+	typeof pageYOffset === undefined
+		? {
+				top: D.scrollTop,
+				left: D.scrollLeft,
+		  }
+		: {
+				top: pageYOffset,
+				left: pageXOffset,
+		  };
 }
 
 /**
  * @param {HTMLElement} el
  * @link refer: https://gist.github.com/aderaaij/89547e34617b95ac29d1
  */
-export function getOffset(element) {
-	const rect = getBoundingClientRect(element);
-	const scroll = getScroll();
-
-	return {
-		x: rect.left + scroll.left,
-		y: rect.top + scroll.top,
-	};
-}
+export const getOffset = (element) => ({
+	x: getBoundingClientRect(element).left + getScroll().left,
+	y: getBoundingClientRect(element).top + getScroll().top,
+});
 
 /**
  * There is some trap in el.offsetParent, so use this func to fix
@@ -556,63 +579,11 @@ export function getPositionFromOffset(element, of) {
 	};
 }
 
-/**
- * @link http://www.51xuediannao.com/javascript/getBoundingClientRect.html
- * @param {HTMLElement} el
- */
-export function getBoundingClientRect(element) {
-	const xy = element.getBoundingClientRect();
-	const top = xy.top - document.documentElement.clientTop;
-	const {bottom} = xy;
-	const left = xy.left - document.documentElement.clientLeft;
-	const {right} = xy;
-	const width = xy.width || right - left;
-	const height = xy.height || bottom - top;
-	const x = left;
-	const y = top;
-	return {top, right, bottom, left, width, height, x, y};
-}
-
 /** Refer [getBoundingClientRect](#getBoundingClientRect) */
 export const getViewportPosition = getBoundingClientRect;
 
-/**
- * @typedef {{
- *   glb: Window;
- *   uniqueId: { [id: string]: true };
- *   localStorage2?: ReturnType<typeof makeStorageHelper>;
- *   sessionStorage2?: ReturnType<typeof makeStorageHelper>;
- * }} Store
- */
-
-/**
- * @param {Store} store
- */
-export const store = {uniqueId: {}};
-/**
- * Get global, such as window in browser.
- * @param {Window} glb
- */
-export function glb() {
-	// `this` !== global or window because of build tool. So you can't use `this` to get `global`
-	if (store.glb) {
-		return store.glb;
-	}
-
-	// Resolve global
-	let t;
-	try {
-		t = global;
-	} catch {
-		t = window;
-	}
-
-	store.glb = t;
-	return t;
-}
-
 export function windowLoaded() {
-	return new Promise((resolve, reject) => {
+	return new Promise((resolve) => {
 		if (document && document.readyState === 'complete') {
 			resolve();
 		} else {
@@ -666,20 +637,4 @@ export function makeStorageHelper(storage) {
 			this.storage.clear();
 		},
 	};
-}
-
-export function getLocalStorage2() {
-	if (!store.localStorage2) {
-		store.localStorage2 = makeStorageHelper(localStorage);
-	}
-
-	return store.localStorage2;
-}
-
-export function getSessionStorage2() {
-	if (!store.sessionStorage2) {
-		store.sessionStorage2 = makeStorageHelper(glb().sessionStorage);
-	}
-
-	return store.sessionStorage2;
 }
