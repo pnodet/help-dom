@@ -1,6 +1,6 @@
 /* globals document, localStorage, window, navigator, pageYOffset, pageXOffset, getComputedStyle */
 
-const isWebComponent = (element) =>
+const isWebComponent = element =>
 	element && element.shadowRoot && element.tagName.includes('-');
 
 /** Select all elements matching given selector. */
@@ -65,7 +65,7 @@ export const createElementsArray = (html = '') => {
 };
 
 /** Get attributes of an element as an object with key/value. */
-export const getAttributes = (element) => {
+export const getAttributes = element => {
 	const result = {};
 	const atts = element.attributes;
 	if (!atts || atts.length === 0) return result;
@@ -94,7 +94,7 @@ export function getBoundingClientRect(element) {
 }
 
 /** Get the value of a cookie. */
-export const getCookie = (name) => {
+export const getCookie = name => {
 	const value = `; ${document.cookie}`;
 	const parts = value.split(`; ${name}=`);
 	if (parts.length === 2) return parts.pop().split(';').shift();
@@ -106,7 +106,7 @@ export function getImageSizeByUrl(url) {
 		onDOM(image, 'load', () => {
 			resolve({width: image.width, height: image.height});
 		});
-		onDOM(image, 'error', (error) => {
+		onDOM(image, 'error', error => {
 			reject(error);
 		});
 		image.src = url;
@@ -309,7 +309,7 @@ export const removeElements = (selector, root = document) => {
  * @param  {FormData} data The FormData object to serialize
  * @return {String}        The serialized form data
  */
-export const serialize = (data) => {
+export const serialize = data => {
 	const object = {};
 	for (const [key, value] of data) {
 		if (object[key] !== undefined) {
@@ -338,7 +338,7 @@ export const serialize = (data) => {
  * const form_data = objectifyForm(form);
  * //=> Object {name: 'Mike', description: 'Interface Engineer', role: 'FE', staff: 'staff'}
  */
-export const objectifyForm = (form) => {
+export const objectifyForm = form => {
 	let field;
 	const object = {};
 
@@ -374,7 +374,7 @@ export const objectifyForm = (form) => {
 };
 
 /** Check if given argument is of String type */
-const isString = (value) => typeof value === 'string';
+const isString = value => typeof value === 'string';
 
 const LOCATIONS = new Set([
 	'beforebegin',
@@ -457,7 +457,7 @@ export { favicon };
  * Element is here a dom tree element (document.getElementById)
  * @param {Node} element
  */
-export const toClipboardFromElement = (element) => {
+export const toClipboardFromElement = element => {
 	try {
 		element.select();
 		const successful = document.execCommand('copy');
@@ -471,7 +471,7 @@ export const toClipboardFromElement = (element) => {
  * Copies area value to the clipboard.
  * @param {String} text
  */
-export const toClipboard = (text) => {
+export const toClipboard = text => {
 	if (typeof window === 'undefined') return false;
 
 	const textArea = document.createElement('textarea');
@@ -518,7 +518,7 @@ export function getScroll() {
  * @param {HTMLElement} el
  * @link refer: https://gist.github.com/aderaaij/89547e34617b95ac29d1
  */
-export const getOffset = (element) => ({
+export const getOffset = element => ({
 	x: getBoundingClientRect(element).left + getScroll().left,
 	y: getBoundingClientRect(element).top + getScroll().top,
 });
@@ -583,7 +583,7 @@ export function getPositionFromOffset(element, of) {
 export const getViewportPosition = getBoundingClientRect;
 
 export function windowLoaded() {
-	return new Promise((resolve) => {
+	return new Promise(resolve => {
 		if (document && document.readyState === 'complete') {
 			resolve();
 		} else {
